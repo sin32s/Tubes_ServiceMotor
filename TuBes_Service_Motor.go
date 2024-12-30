@@ -180,7 +180,6 @@ func DeleteTransaction(id int) bool {
 	}
 	return false
 }
-
 // - Sinta
 
 // Subprogram Perhitungan - Najwa
