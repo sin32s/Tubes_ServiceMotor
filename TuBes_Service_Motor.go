@@ -31,7 +31,7 @@ type StructTransaction struct {
 	TotalPrice float64
 }
 
-// Data global array statis
+// Data global berupa array statis
 var ArrSpareParts [MAX_SPAREPARTS]StructSparePart
 var ArrCustomers [MAX_CUSTOMERS]StructCustomer
 var ArrTransactions [MAX_TRANSACTIONS]StructTransaction
@@ -180,6 +180,7 @@ func DeleteTransaction(id int) bool {
 	}
 	return false
 }
+
 // - Sinta
 
 // Subprogram Perhitungan - Najwa
@@ -195,7 +196,7 @@ func CalculateServiceFee(serviceFee float64, spareParts [MAX_SPAREPARTS]int, Arr
 	return totalPrice
 }
 
-// Searching - Wahyu Bagus S
+// Wahyu Bagus S
 func FindCustomersByServicePeriod(startDate, endDate time.Time) [MAX_CUSTOMERS]StructCustomer {
 	var result [MAX_CUSTOMERS]StructCustomer
 	index := 0
@@ -234,35 +235,49 @@ func FindCustomersBySparePart(sparePartID int) [MAX_CUSTOMERS]StructCustomer {
 }
 
 // SortSparePartsByUsage mengurutkan spare-part berdasarkan jumlah penggunaan (Selection Sort) - Anisa
-func SortSparePartsByUsage(parts [MAX_SPAREPARTS]StructSparePart, order string) [MAX_SPAREPARTS]StructSparePart {
-	sortedParts := parts
-	for i := 0; i < MAX_SPAREPARTS-1; i++ {
+func SortSparePartsByUsage(parts []StructSparePart, order string) []StructSparePart {
+	sortedParts := make([]StructSparePart, len(parts))
+	copy(sortedParts, parts)
+
+	for i := 0; i < len(sortedParts)-1; i++ {
 		selectedIdx := i
-		for j := i + 1; j < MAX_SPAREPARTS; j++ {
+		for j := i + 1; j < len(sortedParts); j++ {
 			if (order == "ascending" && sortedParts[j].UsageCount < sortedParts[selectedIdx].UsageCount) ||
 				(order == "descending" && sortedParts[j].UsageCount > sortedParts[selectedIdx].UsageCount) {
 				selectedIdx = j
 			}
 		}
-
 		sortedParts[i], sortedParts[selectedIdx] = sortedParts[selectedIdx], sortedParts[i]
 	}
+
 	return sortedParts
 }
 
 // Sorting Customers By Name (Insertion sort) - Anisa
 func SortCustomersByName(custs [MAX_CUSTOMERS]StructCustomer, order string) [MAX_CUSTOMERS]StructCustomer {
-	sortedCusts := custs
-	for i := 1; i < MAX_CUSTOMERS; i++ {
-		key := sortedCusts[i]
+	var validCustomers []StructCustomer
+	for _, cust := range custs {
+		if cust.ID != 0 {
+			validCustomers = append(validCustomers, cust)
+		}
+	}
+
+	for i := 1; i < len(validCustomers); i++ {
+		key := validCustomers[i]
 		j := i - 1
-		for j >= 0 && ((order == "ascending" && sortedCusts[j].Name > key.Name) ||
-			(order == "descending" && sortedCusts[j].Name < key.Name)) {
-			sortedCusts[j+1] = sortedCusts[j]
+		for j >= 0 && ((order == "ascending" && validCustomers[j].Name > key.Name) ||
+			(order == "descending" && validCustomers[j].Name < key.Name)) {
+			validCustomers[j+1] = validCustomers[j]
 			j--
 		}
-		sortedCusts[j+1] = key
+		validCustomers[j+1] = key
 	}
+
+	var sortedCusts [MAX_CUSTOMERS]StructCustomer
+	for i, cust := range validCustomers {
+		sortedCusts[i] = cust
+	}
+
 	return sortedCusts
 }
 
@@ -327,7 +342,13 @@ func sparePartMenu() {
 			var order string
 			fmt.Print("Enter order (ascending/descending): ")
 			fmt.Scan(&order)
-			SortSparePartsByUsage(ArrSpareParts, order)
+			sortedParts := SortSparePartsByUsage(ArrSpareParts[:], order)
+			fmt.Println("Sorted Spare Parts by usage:")
+			for _, part := range sortedParts {
+				if part.ID != 0 {
+					fmt.Printf("ID: %03d, Name: %s, UsageCount: %d\n", part.ID, part.Name, part.UsageCount)
+				}
+			}
 		case 6:
 			return
 		default:
@@ -387,6 +408,61 @@ func customerMenu() {
 				fmt.Println("Customer not found.")
 			}
 		case 5:
+			var search int
+			fmt.Println("\nSearching Customer: ")
+			fmt.Println("1. Search by Serviced period")
+			fmt.Println("2. Search by Spare Part Usage")
+			fmt.Println("3. Back to Main Menu")
+			fmt.Print("Enter your choice: ")
+			fmt.Scan(&search)
+
+			switch search {
+			case 1:
+				var startDateStr, endDateStr string
+				fmt.Print("Enter Start Date (YYYY-MM-DD): ")
+				fmt.Scan(&startDateStr)
+				fmt.Print("Enter End Date (YYYY-MM-DD): ")
+				fmt.Scan(&endDateStr)
+		
+				startDate, _ := time.Parse("2006-01-02", startDateStr)
+				endDate, _ := time.Parse("2006-01-02", endDateStr)
+		
+				result := FindCustomersByServicePeriod(startDate, endDate)
+				fmt.Println("Customers serviced within the period: ")
+				for _, customer := range result {
+					if customer.ID != 0 {
+						fmt.Printf("ID: %03d, Name: %s\n", customer.ID, customer.Name)
+					}
+				}
+			case 2:
+				var sparePartID int
+				fmt.Print("Enter Spare Part ID: ")
+				fmt.Scan(&sparePartID)
+
+				result := FindCustomersBySparePart(sparePartID)
+				fmt.Println("Customers who used the spare part:")
+				for _, customer := range result {
+					if customer.ID != 0 {
+						fmt.Printf("ID: %03d, Name: %s\n", customer.ID, customer.Name)
+					}
+				}
+			case 3:
+				return
+			default:
+				fmt.Println("Invalid choice, try again.")			
+			}
+		case 6:
+			var order string
+			fmt.Print("Enter order (ascending/descending): ")
+			fmt.Scan(&order)
+			sortedCusts := SortCustomersByName(ArrCustomers, order)
+			fmt.Println("Sorted Customers:")
+			for _, cust := range sortedCusts {
+				if cust.ID != 0 {
+					fmt.Printf("ID: %03d, Name: %s\n", cust.ID, cust.Name)
+				}
+			}
+		case 7:
 			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
@@ -430,7 +506,8 @@ func transactionMenu() {
 				fmt.Scan(&quantity)
 				newTransaction.SpareParts[sparePartID] = quantity
 			}
-			newTransaction.TotalPrice = CalculateServiceFee(newTransaction.ServiceFee, newTransaction.SpareParts, ArrSpareParts) // <- Fixed function call with correct params
+
+			newTransaction.TotalPrice = CalculateServiceFee(newTransaction.ServiceFee, newTransaction.SpareParts, ArrSpareParts) 
 			if AddTransaction(newTransaction) {
 				fmt.Println("Transaction added successfully.")
 			} else {
@@ -482,15 +559,18 @@ func transactionMenu() {
 }
 
 func main() {
-	ArrSpareParts[0] = StructSparePart{ID: 1, Name: "Oli Mesin", Price: 75000, Stock: 20, UsageCount: 0}
-	ArrSpareParts[1] = StructSparePart{ID: 2, Name: "Kampas Rem", Price: 50000, Stock: 15, UsageCount: 0}
-	ArrSpareParts[2] = StructSparePart{ID: 3, Name: "Filter Udara", Price: 30000, Stock: 10, UsageCount: 0}
-	
-	ArrCustomers[0] = StructCustomer{ID: 1, Name: "Sinta"}
-	ArrCustomers[1] = StructCustomer{ID: 2, Name: "Nisa"}
-	ArrCustomers[2] = StructCustomer{ID: 3, Name: "Najwa"}
-	ArrCustomers[3] = StructCustomer{ID: 4, Name: "Wahyu"}
-	
+	ArrSpareParts[0] = StructSparePart{ID: 1, Name: "Oli Mesin", Price: 75000, Stock: 20, UsageCount: 5}
+	ArrSpareParts[1] = StructSparePart{ID: 2, Name: "Kampas Rem", Price: 50000, Stock: 15, UsageCount: 3}
+	ArrSpareParts[2] = StructSparePart{ID: 3, Name: "Filter Udara", Price: 30000, Stock: 10, UsageCount: 7}
+	ArrSpareParts[3] = StructSparePart{ID: 4, Name: "Roda Motor", Price: 120000, Stock: 15, UsageCount: 3}
+
+	ArrCustomers = [MAX_CUSTOMERS]StructCustomer{
+		{ID: 1, Name: "Sinta"},
+		{ID: 2, Name: "Nisa"},
+		{ID: 3, Name: "Najwa"},
+		{ID: 4, Name: "Wahyu"},
+	}
+
 	ArrTransactions[0] = StructTransaction{
 		ID:         1,
 		CustomerID: 1,
@@ -507,7 +587,7 @@ func main() {
 		SpareParts: [MAX_SPAREPARTS]int{0, 1, 1},
 		TotalPrice: 140000,
 	}
-	
+
 	var choice int
 	for {
 		fmt.Println("\nMain Menu:")
@@ -527,23 +607,52 @@ func main() {
 		case 3:
 			transactionMenu()
 		case 4:
-			fmt.Print("Calculate Service Fee\n")
+			fmt.Println("Calculate Service Fee")
+			
 			var serviceFee float64
 			fmt.Print("Input service fee: ")
 			fmt.Scan(&serviceFee)
-
-			var spareParts [MAX_SPAREPARTS]int 
-			fmt.Println("Input spare parts used (quantity for each spare part):")
-			for i := 0; i < MAX_SPAREPARTS; i++ {
-				fmt.Printf("Spare Part %d: ", i+1)
-				fmt.Scan(&spareParts[i])
+		
+			var spareParts [MAX_SPAREPARTS]int
+			fmt.Println("Input spare parts used (enter -1 to finish):")
+			for {
+				var sparePartID int
+				fmt.Print("Enter spare part ID: ")
+				fmt.Scan(&sparePartID)
+		
+				if sparePartID == -1 {
+					break
+				}
+		
+				// Search spare part dengan ID
+				var sparePartIndex int = -1
+				for i := 0; i < MAX_SPAREPARTS; i++ {
+					if ArrSpareParts[i].ID == sparePartID {
+						sparePartIndex = i
+						break
+					}
+				}
+		
+				if sparePartIndex != -1 {
+					var quantity int
+					fmt.Print("Enter quantity for Spare Part ", sparePartID, ": ")
+					fmt.Scan(&quantity)
+		
+					if quantity >= 0 {
+						spareParts[sparePartIndex] += quantity
+					} else {
+						fmt.Println("Invalid quantity. Please enter a non-negative number.")
+					}
+				} else {
+					fmt.Println("Invalid spare part ID. Please try again.")
+				}
 			}
-
+		
+			// Calculate total service fee
 			totalPrice := CalculateServiceFee(serviceFee, spareParts, ArrSpareParts)
 			fmt.Printf("Total Service Fee: %.2f\n", totalPrice)
 		case 5:
 			fmt.Println("See you next time!")
-			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
 		}
