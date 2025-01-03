@@ -451,7 +451,7 @@ func customerMenu() {
 			fmt.Print("Enter order (ascending/descending): ")
 			fmt.Scan(&order)
 			sortedCusts := SortCustomersByName(ArrCustomers, order)
-			fmt.Println("Sorted Customers:")
+			fmt.Println("Sorted Customers (alphabetically):")
 			for _, cust := range sortedCusts {
 				if cust.ID != 0 {
 					fmt.Printf("ID: %03d, Name: %s\n", cust.ID, cust.Name)
