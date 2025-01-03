@@ -664,7 +664,7 @@ func main() {
 						if quantity >= 0 {
 							spareParts[sparePartIndex] += quantity
 						} else {
-							fmt.Println("Invalid quantity. Please enter a non-negative number.")
+							fmt.Println("Invalid quantity. Please try again.")
 						}
 					} else {
 						fmt.Println("Invalid spare part ID. Please try again.")
