@@ -161,13 +161,14 @@ func AddTransaction(newTransaction StructTransaction) bool {
 
 // Mengubah data transaksi
 func UpdateTransaction(id int, updatedTransaction StructTransaction) bool {
-	for i := 0; i < MAX_TRANSACTIONS; i++ {
-		if ArrTransactions[i].ID == id {
-			ArrTransactions[i] = updatedTransaction
-			return true
-		}
-	}
-	return false
+    for i := 0; i < MAX_TRANSACTIONS; i++ {
+        if ArrTransactions[i].ID == id {
+            updatedTransaction.Date = time.Date(updatedTransaction.Date.Year(), updatedTransaction.Date.Month(), updatedTransaction.Date.Day(), 0, 0, 0, 0, updatedTransaction.Date.Location())
+            ArrTransactions[i] = updatedTransaction
+            return true
+        }
+    }
+    return false
 }
 
 // Menghapus transaksi
@@ -489,28 +490,34 @@ func transactionMenu() {
 			fmt.Print("Enter Service Fee: ")
 			fmt.Scan(&newTransaction.ServiceFee)
 			newTransaction.Date = time.Now()
+			newTransaction.Date = time.Date(newTransaction.Date.Year(), newTransaction.Date.Month(), newTransaction.Date.Day(), 0, 0, 0, 0, newTransaction.Date.Location())
 			fmt.Println("Enter Spare Part Usage (Enter ID and Quantity, 0 to stop):")
-			for {
-				var sparePartID, quantity int
+		
+			var sparePartID, quantity int
+			var continueInput bool = true
+			for continueInput {
 				fmt.Print("Enter Spare Part ID: ")
 				fmt.Scan(&sparePartID)
 				if sparePartID == 0 {
-					break
+					continueInput = false
+				} else {
+					fmt.Print("Enter Quantity: ")
+					fmt.Scan(&quantity)
+					newTransaction.SpareParts[sparePartID] = quantity
 				}
-				fmt.Print("Enter Quantity: ")
-				fmt.Scan(&quantity)
-				newTransaction.SpareParts[sparePartID] = quantity
 			}
-
-			newTransaction.TotalPrice = CalculateServiceFee(newTransaction.ServiceFee, newTransaction.SpareParts, ArrSpareParts) 
+		
+			newTransaction.TotalPrice = CalculateServiceFee(newTransaction.ServiceFee, newTransaction.SpareParts, ArrSpareParts)
 			if AddTransaction(newTransaction) {
 				fmt.Println("Transaction added successfully.")
 			} else {
 				fmt.Println("Failed to add transaction. Storage full.")
-			}
+			}		
 		case 3:
 			var id int
 			var updatedTransaction StructTransaction
+			var sparePartID, quantity int
+			var continueInput bool = true
 			fmt.Print("Enter Transaction ID to update: ")
 			fmt.Scan(&id)
 			fmt.Print("Enter New Customer ID: ")
@@ -518,18 +525,21 @@ func transactionMenu() {
 			fmt.Print("Enter New Service Fee: ")
 			fmt.Scan(&updatedTransaction.ServiceFee)
 			updatedTransaction.Date = time.Now()
+			updatedTransaction.Date = time.Date(updatedTransaction.Date.Year(), updatedTransaction.Date.Month(), updatedTransaction.Date.Day(), 0, 0, 0, 0, updatedTransaction.Date.Location())
 			fmt.Println("Enter New Spare Part Usage (Enter ID and Quantity, 0 to stop):")
-			for {
-				var sparePartID, quantity int
+
+			for continueInput {
 				fmt.Print("Enter Spare Part ID: ")
 				fmt.Scan(&sparePartID)
 				if sparePartID == 0 {
-					break
+					continueInput = false
+				} else {
+					fmt.Print("Enter Quantity: ")
+					fmt.Scan(&quantity)
+					updatedTransaction.SpareParts[sparePartID] = quantity
 				}
-				fmt.Print("Enter Quantity: ")
-				fmt.Scan(&quantity)
-				updatedTransaction.SpareParts[sparePartID] = quantity
 			}
+		
 			updatedTransaction.TotalPrice = CalculateServiceFee(updatedTransaction.ServiceFee, updatedTransaction.SpareParts, ArrSpareParts)
 			if UpdateTransaction(id, updatedTransaction) {
 				fmt.Println("Transaction updated successfully.")
