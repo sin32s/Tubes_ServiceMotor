@@ -530,7 +530,7 @@ func transactionMenu() {
 				fmt.Scan(&quantity)
 				updatedTransaction.SpareParts[sparePartID] = quantity
 			}
-			updatedTransaction.TotalPrice = CalculateServiceFee(updatedTransaction.ServiceFee, updatedTransaction.SpareParts, ArrSpareParts) // <- Fixed function call with correct params
+			updatedTransaction.TotalPrice = CalculateServiceFee(updatedTransaction.ServiceFee, updatedTransaction.SpareParts, ArrSpareParts)
 			if UpdateTransaction(id, updatedTransaction) {
 				fmt.Println("Transaction updated successfully.")
 			} else {
