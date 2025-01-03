@@ -637,42 +637,44 @@ func main() {
 		
 			var spareParts [MAX_SPAREPARTS]int
 			fmt.Println("Input spare parts used (enter -1 to finish):")
-			for {
+		
+			var continueInput bool = true
+			for continueInput {
 				var sparePartID int
 				fmt.Print("Enter spare part ID: ")
 				fmt.Scan(&sparePartID)
-		
+			
 				if sparePartID == -1 {
-					break
-				}
-		
-				// Search spare part dengan ID
-				var sparePartIndex int = -1
-				for i := 0; i < MAX_SPAREPARTS; i++ {
-					if ArrSpareParts[i].ID == sparePartID {
-						sparePartIndex = i
-						break
-					}
-				}
-		
-				if sparePartIndex != -1 {
-					var quantity int
-					fmt.Print("Enter quantity for Spare Part ", sparePartID, ": ")
-					fmt.Scan(&quantity)
-		
-					if quantity >= 0 {
-						spareParts[sparePartIndex] += quantity
-					} else {
-						fmt.Println("Invalid quantity. Please enter a non-negative number.")
-					}
+					continueInput = false
 				} else {
-					fmt.Println("Invalid spare part ID. Please try again.")
+					// Search spare part dengan ID
+					var sparePartIndex int = -1
+					for i := 0; i < MAX_SPAREPARTS; i++ {
+						if ArrSpareParts[i].ID == sparePartID {
+							sparePartIndex = i
+							break
+						}
+					}
+			
+					if sparePartIndex != -1 {
+						var quantity int
+						fmt.Print("Enter quantity for Spare Part ", sparePartID, ": ")
+						fmt.Scan(&quantity)
+			
+						if quantity >= 0 {
+							spareParts[sparePartIndex] += quantity
+						} else {
+							fmt.Println("Invalid quantity. Please enter a non-negative number.")
+						}
+					} else {
+						fmt.Println("Invalid spare part ID. Please try again.")
+					}
 				}
 			}
 		
 			// Calculate total service fee
 			totalPrice := CalculateServiceFee(serviceFee, spareParts, ArrSpareParts)
-			fmt.Printf("Total Service Fee: %.2f\n", totalPrice)
+			fmt.Printf("Total Service Fee: %.2f\n", totalPrice)		
 		case 5:
 			fmt.Println("See you next time!")
 			return
