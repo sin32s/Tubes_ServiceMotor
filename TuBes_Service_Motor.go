@@ -569,18 +569,35 @@ func main() {
 	ArrTransactions[0] = StructTransaction{
 		ID:         1,
 		CustomerID: 1,
-		Date:       time.Now().AddDate(0, -1, 0),
+		Date: 		time.Date(2025, time.January, 3, 12, 0, 0, 0, time.UTC),
 		ServiceFee: 50000,
 		SpareParts: [MAX_SPAREPARTS]int{1, 0, 2},
 		TotalPrice: 155000,
 	}
 	ArrTransactions[1] = StructTransaction{
-		ID:         2,
+		ID: 		2,
 		CustomerID: 2,
-		Date:       time.Now().AddDate(0, -2, 0),
+		Date: 		time.Date(2024, time.February, 20, 12, 0, 0, 0, time.UTC),
 		ServiceFee: 60000,
-		SpareParts: [MAX_SPAREPARTS]int{0, 1, 1},
+		SpareParts: [MAX_SPAREPARTS]int{2, 0, 3},
 		TotalPrice: 140000,
+	}
+
+	ArrTransactions[2] = StructTransaction{
+		ID:         3,
+		CustomerID: 3,
+		Date: 		time.Date(2024, time.November, 3, 12, 0, 0, 0, time.UTC),
+		ServiceFee: 50000,
+		SpareParts: [MAX_SPAREPARTS]int{1, 0, 2},
+		TotalPrice: 155000,
+	}
+	ArrTransactions[3] = StructTransaction{
+		ID: 		4,
+		CustomerID: 4,
+		Date: 		time.Date(2025, time.February, 2, 12, 0, 0, 0, time.UTC),
+		ServiceFee: 60000,
+		SpareParts: [MAX_SPAREPARTS]int{3, 2, 4},
+		TotalPrice: 200000,
 	}
 
 	var choice int
