@@ -255,28 +255,23 @@ func SortSparePartsByUsage(parts []StructSparePart, order string) []StructSpareP
 
 // Sorting Customers By Name (Insertion sort) - Anisa
 func SortCustomersByName(custs [MAX_CUSTOMERS]StructCustomer, order string) [MAX_CUSTOMERS]StructCustomer {
-	var validCustomers []StructCustomer
-	for _, cust := range custs {
-		if cust.ID != 0 {
-			validCustomers = append(validCustomers, cust)
-		}
-	}
-
-	for i := 1; i < len(validCustomers); i++ {
-		key := validCustomers[i]
+	// Implementasi insertion sort langsung di array input
+	for i := 1; i < len(custs); i++ {
+		key := custs[i]
 		j := i - 1
-		for j >= 0 && ((order == "ascending" && validCustomers[j].Name > key.Name) ||
-			(order == "descending" && validCustomers[j].Name < key.Name)) {
-			validCustomers[j+1] = validCustomers[j]
+
+		// Geser elemen selama valid dan sesuai urutan
+		for j >= 0 && ((order == "ascending" && custs[j].Name > key.Name) ||
+			(order == "descending" && custs[j].Name < key.Name)) {
+			custs[j+1] = custs[j]
 			j--
 		}
-		validCustomers[j+1] = key
+		custs[j+1] = key
 	}
 
+	// Salin hasil ke array hasil
 	var sortedCusts [MAX_CUSTOMERS]StructCustomer
-	for i, cust := range validCustomers {
-		sortedCusts[i] = cust
-	}
+	copy(sortedCusts[:], custs[:])
 
 	return sortedCusts
 }
@@ -653,6 +648,7 @@ func main() {
 			fmt.Printf("Total Service Fee: %.2f\n", totalPrice)
 		case 5:
 			fmt.Println("See you next time!")
+			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
 		}
